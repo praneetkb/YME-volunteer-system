@@ -2,48 +2,62 @@
 
 "use client";
 import { useState } from "react"; 
+import Image from "next/image";
 
 export default function LoginPage() {
 
-    // State variables 
-    const [loginId, setLoginId] = useState(""); // stores the ID
-    const [password, setPassword] = useState(""); // stores password
+  // State variables 
+  const [loginId, setLoginId] = useState(""); // stores the ID
+  const [password, setPassword] = useState(""); // stores password
 
-    return (
-        <div className="flex min-h-screen">
+  return (
+    <div className="flex min-h-screen font-sans">
       {/* Left side for logo and name */}
       <div className="w-1/2 flex items-center justify-center bg-gray-100">
-        {/* Placeholder for logo */}
-        <h1 className="text-3xl font-bold">YME Logo</h1>
+        <Image
+          src="/logo.png"      // file from public/
+          alt="YME Logo"       // accessibility text
+          width={950}          
+          height={950}        
+          priority             // ensures it loads sharp/fast
+          className="object-contain w-full h-auto"
+        />
       </div>
 
-      {/* Right side to login */}
-      <div className="w-1/2 flex flex-col items-center justify-center p-8">
+      {/* Right side login section */}
+      <div className="w-1/2 flex flex-col items-center justify-center p-8 bg-purple-100">
+        
         {/* Title */}
-        <h2 className="text-2xl font-bold mb-6">Talk Buddies Feedback Form</h2>
+        <h2 className="text-3xl font-serif font-semibold mb-8 text-purple-900">
+          Welcome to Young Mind&apos;s Eye!
+        </h2>
 
         {/* Login ID */}
-        <label className="w-full mb-2">Log in ID</label>
+        <label className="w-full mb-2 font-medium text-gray-700">Log in ID</label>
         <input
           type="text"
           placeholder="Enter your ID"
-          value={loginId} // binds state to input 
-          onChange={(e) => setLoginId(e.target.value)} // updates state on typing 
-          className="w-full border rounded p-2 mb-4"
+          value={loginId}
+          onChange={(e) => setLoginId(e.target.value)}
+          className="w-full border border-gray-400 rounded-xl p-3 mb-4 
+                     text-gray-900 placeholder-gray-500 caret-purple-900
+                     focus:outline-none focus:ring-2 focus:ring-purple-400"
         />
 
         {/* Password */}
-        <label className="w-full mb-2">Your Password</label>
+        <label className="w-full mb-2 font-medium text-gray-700">Your Password</label>
         <input
           type="password"
           placeholder="Enter your password"
-          value={password} // binds state to input 
-          onChange={(e) => setPassword(e.target.value)} // updates state on typing
-          className="w-full border rounded p-2 mb-6"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border border-gray-400 rounded-xl p-3 mb-6 
+                     text-gray-900 placeholder-gray-500 caret-purple-900
+                     focus:outline-none focus:ring-2 focus:ring-purple-400"
         />
 
         {/* Get Started Button */}
-        <button className="w-full bg-purple-900 text-white p-3 rounded">
+        <button className="w-full bg-purple-900 text-white p-3 rounded-lg hover:bg-purple-800 transition">
           Get Started
         </button>
       </div>
