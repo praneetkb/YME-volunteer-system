@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 export const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 await supabaseAdmin.from('responses').insert([{
@@ -19,3 +19,9 @@ await supabaseAdmin.from('responses').insert([{
     next_session_notes: 'Give more visuals'
   }]);
   
+  const { data } = await supabaseAdmin
+  .from('responses')
+  .select('*')
+  .eq('status', 'completed')
+  .order('session_date', { ascending: false })
+  .limit(5);

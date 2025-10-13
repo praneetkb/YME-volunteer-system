@@ -1,8 +1,8 @@
 // main volunteer form page
 
-"use client" 
+"use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function ResponsesPage() {
   const [formData, setFormData] = useState({
@@ -18,6 +18,8 @@ export default function ResponsesPage() {
     strategies_used: "",
     next_session_notes: "",
   })
+
+  const [submitted, setSubmitted] = useState(false) // state to show confirmation
 
   // updates state whenever user types or selects
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -42,10 +44,23 @@ export default function ResponsesPage() {
     })
   }
 
-  // placeholder for submit (will connect to API later)
+  // submit form
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // TODO: connect this to your API later
     console.log("Form submitted:", formData)
+
+    // show confirmation message
+    setSubmitted(true)
+
+    // auto-hide after 3 seconds
+    setTimeout(() => {
+      setSubmitted(false)
+    }, 3000)
+
+    // clear form if desired
+    handleClear()
   }
 
   return (

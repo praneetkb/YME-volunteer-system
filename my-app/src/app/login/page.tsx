@@ -1,66 +1,95 @@
 // main login page
 
 "use client";
-import { useState } from "react"; 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function LoginPage() {
 
-  // State variables 
-  const [loginId, setLoginId] = useState(""); // stores the ID
-  const [password, setPassword] = useState(""); // stores password
+    const [loginId, setLoginId] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const router = useRouter();
 
-  return (
-    <div className="flex min-h-screen font-sans">
-      {/* Left side for logo and name */}
-      <div className="w-1/2 flex items-center justify-center bg-gray-100">
-        <Image
-          src="/logo.png"      // file from public/
-          alt="YME Logo"       // accessibility text
-          width={950}          
-          height={950}        
-          priority             // ensures it loads sharp/fast
-          className="object-contain w-full h-auto"
-        />
-      </div>
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault(); // prevent default form submission
+        setError("");
 
-      {/* Right side login section */}
-      <div className="w-1/2 flex flex-col items-center justify-center p-8 bg-purple-100">
-        
-        {/* Title */}
-        <h2 className="text-3xl font-serif font-semibold mb-8 text-purple-900">
-          Welcome to Young Mind&apos;s Eye!
-        </h2>
+        try {
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: loginId, password }),
+            });
 
-        {/* Login ID */}
-        <label className="w-full mb-2 font-medium text-gray-700">Log in ID</label>
-        <input
-          type="text"
-          placeholder="Enter your ID"
-          value={loginId}
-          onChange={(e) => setLoginId(e.target.value)}
-          className="w-full border border-gray-400 rounded-xl p-3 mb-4 
+            const data = await res.json();
+
+            if (data.success) {
+                router.push("/home"); // redirect to home page
+            } else {
+                setError(data.error || "Login failed");
+            }
+        } catch (err) {
+            console.error(err);
+            setError("Something went wrong");
+        }
+    };
+
+    return (
+        <div className="flex min-h-screen font-sans">
+            {/* Left side for logo and name */}
+            <div className="w-1/2 flex items-center justify-center bg-gray-100">
+                <Image
+                    src="/logo.png"      // file from public/
+                    alt="YME Logo"       // accessibility text
+                    width={950}
+                    height={950}
+                    priority             // ensures it loads sharp/fast
+                    className="object-contain w-full h-auto"
+                />
+            </div>
+
+            {/* Right side login section */}
+            <div className="w-1/2 flex flex-col items-center justify-center p-8 bg-purple-100">
+
+                {/* Title */}
+                <h2 className="text-3xl font-serif font-semibold mb-8 text-purple-900">
+                    Welcome to Young Minds Eye!
+                </h2>
+
+                {/* Login ID */}
+                <label className="w-full mb-2 font-medium text-gray-700">Username</label>
+                <input
+                    type="text"
+                    placeholder="Enter your username"
+                    value={loginId}
+                    onChange={(e) => setLoginId(e.target.value)}
+                    className="w-full border border-gray-400 rounded-xl p-3 mb-4 
                      text-gray-900 placeholder-gray-500 caret-purple-900
                      focus:outline-none focus:ring-2 focus:ring-purple-400"
-        />
+                />
 
-        {/* Password */}
-        <label className="w-full mb-2 font-medium text-gray-700">Your Password</label>
-        <input
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-gray-400 rounded-xl p-3 mb-6 
+                {/* Password */}
+                <label className="w-full mb-2 font-medium text-gray-700">Your Password</label>
+                <input
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full border border-gray-400 rounded-xl p-3 mb-6 
                      text-gray-900 placeholder-gray-500 caret-purple-900
                      focus:outline-none focus:ring-2 focus:ring-purple-400"
-        />
+                />
 
-        {/* Get Started Button */}
-        <button className="w-full bg-purple-900 text-white p-3 rounded-lg hover:bg-purple-800 transition">
-          Get Started
-        </button>
-      </div>
-    </div>
-  );
+                {/* Get Started Button */}
+                <button
+                    onClick={handleLogin}
+                    className="w-full bg-purple-900 text-white p-3 rounded-lg hover:bg-purple-800 transition"
+                >
+                    Get Started
+                </button>
+            </div>
+        </div>
+    );
 }
