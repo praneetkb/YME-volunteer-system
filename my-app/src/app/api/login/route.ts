@@ -1,67 +1,120 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export async function POST(req: NextRequest) {
-  try {
-    const { username, password } = await req.json();
-    console.log("🟢 Attempting login for:", username);
+    try {
+        const { username, password } = await req.json();
 
-    // Fetch user from Supabase
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("username", username);
+        if (
+            typeof username !== "string" ||
+            typeof password !== "string" ||
+            !username.trim() ||
+            !password
+        ) {
+            return NextResponse.json(
+                { success: false, error: "Username and password are required." },
+                { status: 400 }
+            );
+        }
 
-    console.log("🟣 Supabase raw data:", data);
-    console.log("🔴 Supabase error:", error);
+        // Find the account in Supabase
+        const { data: user, error } = await supabase
+            .from("users")
+            .select("username, password_hash, role")
+            .eq("username", username.trim())
+            .maybeSingle();
 
-    if (error || !data || data.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 401 }
-      );
+        if (error) {
+            console.error("Login database error:", error.message);
+            return NextResponse.json(
+                { success: false, error: "Unable to verify account." },
+                { status: 500 }
+            );
+        }
+
+        if (!user) {
+            return NextResponse.json(
+                { success: false, error: "Invalid username or password." },
+                { status: 401 }
+            );
+        }
+
+        // Validate the account role
+        const role = String(user.role).trim().toLowerCase();
+
+        if (role !== "exec" && role !== "volunteer") {
+            console.error("Invalid account role:", user.role);
+
+            return NextResponse.json(
+                { success: false, error: "Account has an invalid role." },
+                { status: 403 }
+            );
+        }
+
+        // Compare entered password with the stored bcrypt hash
+        if (!user.password_hash) {
+            return NextResponse.json(
+                { success: false, error: "Account password is not configured." },
+                { status: 500 }
+            );
+        }
+
+        const passwordMatch = await bcrypt.compare(
+            password,
+            user.password_hash
+        );
+
+        if (!passwordMatch) {
+            return NextResponse.json(
+                { success: false, error: "Invalid username or password." },
+                { status: 401 }
+            );
+        }
+
+        // Check that JWT secret exists
+        const secret = process.env.JWT_SECRET;
+
+        if (!secret) {
+            throw new Error("JWT_SECRET is not configured.");
+        }
+
+        // Generate authentication token
+        const token = jwt.sign(
+            {
+                username: user.username,
+                role: role,
+            },
+            secret,
+            { expiresIn: "1h" }
+        );
+
+        // Create response and set secure HttpOnly cookie
+        const response = NextResponse.json({
+            success: true,
+            role: role,
+        });
+
+        response.cookies.set({
+            name: "token",
+            value: token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+            maxAge: 60 * 60,
+        });
+
+        return response;
+
+    } catch (err) {
+        console.error("Login server error:", err);
+
+        return NextResponse.json(
+            { success: false, error: "Something went wrong. Please try again." },
+            { status: 500 }
+        );
     }
-
-    const user = data[0];
-    console.log("🟢 Matched user:", user.username);
-
-    // Compare entered password with hashed password
-    const passwordMatch = await bcrypt.compare(password, user.password_hash);
-    if (!passwordMatch) {
-      return NextResponse.json(
-        { success: false, error: "Incorrect password" },
-        { status: 401 }
-      );
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { username: user.username, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
-    );
-
-    // Return success and set token in httpOnly cookie
-    const response = NextResponse.json({ success: true, role: user.role });
-    response.cookies.set({
-      name: "token",
-      value: token,
-      httpOnly: true,
-      path: "/",
-      maxAge: 60 * 60,
-      sameSite: "strict",
-    });
-
-    console.log("✅ Login successful for:", user.username);
-    return response;
-
-  } catch (err) {
-    console.error("🔥 Server error:", err);
-    return NextResponse.json(
-      { success: false, error: "Server error" },
-      { status: 500 }
-    );
-  }
 }
