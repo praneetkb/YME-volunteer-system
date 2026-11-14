@@ -12,6 +12,7 @@ build/
 
 # System files
 .DS_Store
+**/.DS_Store
 
 # Logs
 npm-debug.log*
