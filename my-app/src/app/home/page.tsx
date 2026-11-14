@@ -1,10 +1,17 @@
-// dashboard or home page to navigate after logging in
+// Dashboard or home page to navigate after logging in
 
 "use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
+import {
+    ClipboardList,
+    CalendarCheck,
+    Clock,
+    Users,
+} from "lucide-react";
 
 type UserRole = "exec" | "volunteer";
 
@@ -81,7 +88,9 @@ export default function HomePage() {
     if (loading || !role) {
         return (
             <div className="min-h-screen bg-purple-100 flex items-center justify-center">
-                <p className="text-purple-900">Loading your dashboard...</p>
+                <p className="text-purple-900">
+                    Loading your dashboard...
+                </p>
             </div>
         );
     }
@@ -110,36 +119,137 @@ export default function HomePage() {
             </header>
 
             {/* Main dashboard */}
-            <main className="flex flex-1 items-center justify-center">
+            <main className="flex flex-1 items-center justify-center p-6">
 
-                <div className="bg-white shadow-lg rounded-2xl p-10 max-w-md w-full text-center">
+                <div className="max-w-4xl w-full">
 
-                    <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                        Welcome to the YME <br /> Volunteer System!
-                    </h1>
+                    {/* Welcome section */}
+                    <div className="bg-white shadow-lg rounded-2xl p-8 mb-6 text-center">
 
-                    <p className="text-gray-800 mb-8">
-                        Please choose an option below:
-                    </p>
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                            Welcome to the YME Volunteer System!
+                        </h1>
 
-                    <div className="space-y-4">
+                        <p className="text-gray-600">
+                            Young Minds Eye Volunteer Management Dashboard
+                        </p>
 
-                        <Link
-                            href="/responses"
-                            className="block w-full bg-purple-900 text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition"
-                        >
-                            Submit New Feedback
-                        </Link>
+                    </div>
 
-                        <Link
-                            href="/pastResponses"
-                            className="block w-full bg-purple-900 text-white py-3 rounded-lg font-medium hover:bg-purple-800 transition"
-                        >
-                            View Past Responses
-                        </Link>
+                    {/* Feature cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                        {/* Feedback System */}
+                        <div className="bg-white shadow-md rounded-xl p-6 border border-gray-200 flex flex-col">
+
+                            <div className="text-purple-800 mb-3">
+                                <ClipboardList />
+                            </div>
+
+                            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                                Feedback System
+                            </h2>
+
+                            <p className="text-gray-600 text-sm mb-4">
+                                Submit and review session feedback.
+                            </p>
+
+                            <div className="space-y-3 mt-auto">
+
+                                <Link
+                                    href="/responses"
+                                    className="block w-full text-center bg-purple-900 text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition"
+                                >
+                                    Submit New Feedback 
+                                </Link>
+
+                                <Link
+                                    href="/pastResponses"
+                                    className="block w-full text-center bg-purple-900 text-white py-3 rounded-lg font-medium hover:bg-purple-800 transition"
+                                >
+                                    View Past Responses 
+                                </Link>
+
+                            </div>
+
+                            <span className="inline-block self-start mt-4 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                Available
+                            </span>
+
+                        </div>
+
+                        {/* Session Matching */}
+                        <div className="bg-white shadow-md rounded-xl p-6 border border-gray-200 flex flex-col">
+
+                            <div className="text-purple-800 mb-3">
+                                <CalendarCheck />
+                            </div>
+
+                            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                                Session Matching
+                            </h2>
+
+                            <p className="text-gray-600 text-sm mb-4">
+                                Match facilitator and student availability to find suitable session times.
+                            </p>
+
+                            <div className="mt-auto">
+                                <span className="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                    Coming Soon
+                                </span>
+                            </div>
+
+                        </div>
+
+                        {/* Volunteer Hours */}
+                        <div className="bg-white shadow-md rounded-xl p-6 border border-gray-200 flex flex-col">
+
+                            <div className="text-purple-800 mb-3">
+                                <Clock />
+                            </div>
+
+                            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                                Volunteer Hours
+                            </h2>
+
+                            <p className="text-gray-600 text-sm mb-4">
+                                Track and manage volunteer hours and contributions.
+                            </p>
+
+                            <div className="mt-auto">
+                                <span className="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                    Coming Soon
+                                </span>
+                            </div>
+
+                        </div>
+
+                        {/* Volunteer Directory */}
+                        <div className="bg-white shadow-md rounded-xl p-6 border border-gray-200 flex flex-col">
+
+                            <div className="text-purple-800 mb-3">
+                                <Users />
+                            </div>
+
+                            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                                Volunteer Directory
+                            </h2>
+
+                            <p className="text-gray-600 text-sm mb-4">
+                                View volunteer profiles, roles, assigned students, and team information.
+                            </p>
+
+                            <div className="mt-auto">
+                                <span className="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                    Coming Soon
+                                </span>
+                            </div>
+
+                        </div>
 
                     </div>
                 </div>
+
             </main>
         </div>
     );
