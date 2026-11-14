@@ -1,6 +1,5 @@
-
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -21,7 +20,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Find the account in Supabase
-        const { data: user, error } = await supabase
+        const { data: user, error } = await supabaseAdmin
             .from("users")
             .select("username, password_hash, role")
             .eq("username", username.trim())
