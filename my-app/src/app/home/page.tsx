@@ -115,7 +115,7 @@ export default function HomePage() {
                 <div className="bg-white shadow-lg rounded-2xl p-10 max-w-md w-full text-center">
 
                     <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                        Welcome to YME Feedback System!
+                        Welcome to the YME <br /> Volunteer System!
                     </h1>
 
                     <p className="text-gray-800 mb-8">
@@ -128,7 +128,7 @@ export default function HomePage() {
                             href="/responses"
                             className="block w-full bg-purple-900 text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition"
                         >
-                            Submit a New Feedback
+                            Submit New Feedback
                         </Link>
 
                         <Link

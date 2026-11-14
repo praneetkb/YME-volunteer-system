@@ -2,9 +2,41 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ResponsesPage() {
+
+  const router = useRouter();
+
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch("/api/getSession", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          router.replace("/login");
+          return;
+        }
+
+        // Only allow the form to render after authentication succeeds.
+        setIsAuthorized(true);
+
+      } catch {
+        router.replace("/login");
+      } finally {
+        setCheckingSession(false);
+      }
+    };
+
+    checkSession();
+  }, [router]);
+
   const [formData, setFormData] = useState({
     session_date: "",
     facilitator_name: "",
@@ -20,6 +52,9 @@ export default function ResponsesPage() {
   })
 
   const [submitted, setSubmitted] = useState(false) // state to show confirmation
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // updates state whenever user types or selects
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -45,23 +80,51 @@ export default function ResponsesPage() {
   }
 
   // submit form
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // TODO: connect this to your API later
-    console.log("Form submitted:", formData)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    // show confirmation message
-    setSubmitted(true)
+    setIsSubmitting(true);
+    setErrorMessage("");
+    setSubmitted(false);
 
-    // auto-hide after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false)
-    }, 3000)
+    try {
+        const response = await fetch("/api/responses", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        });
 
-    // clear form if desired
-    handleClear()
-  }
+        const contentType = response.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+            throw new Error(`The API returned an unexpected response (HTTP ${response.status}). Check the API route.`);
+        }
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Could not submit feedback.");
+        }
+
+        setSubmitted(true);
+        handleClear();
+
+    } catch (error) {
+        setErrorMessage(
+            error instanceof Error
+                ? error.message
+                : "Something went wrong. Please try again."
+        );
+    } finally {
+        setIsSubmitting(false);
+    }
+};
+
+if (checkingSession || !isAuthorized) {
+    return null;
+}
 
   return (
     <div className="min-h-screen bg-purple-100 flex justify-center p-6">
@@ -71,7 +134,17 @@ export default function ResponsesPage() {
         <h1 className="text-2xl font-semibold mb-6 text-gray-800">Session Feedback Form</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* each question block */}
+          {submitted && (
+            <p className="text-green-700 bg-green-100 p-3 rounded-md">
+              Feedback submitted successfully!
+            </p>
+          )}
+
+          {errorMessage && (
+            <p className="text-red-700 bg-red-100 p-3 rounded-md">
+              {errorMessage}
+            </p>
+          )}
           
 
           <div>
@@ -237,9 +310,10 @@ export default function ResponsesPage() {
 
             <button
               type="submit"
-              className="px-6 py-2 bg-purple-900 text-white font-semibold rounded-lg hover:bg-purple-800"
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-purple-900 text-white font-semibold rounded-lg hover:bg-purple-800 disabled:opacity-50"
             >
-              Submit
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>
